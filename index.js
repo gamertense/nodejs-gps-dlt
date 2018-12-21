@@ -24,5 +24,4 @@ app.listen(port, () => {
 // var minutes = 2, the_interval = minutes * 60 * 1000;
 // setInterval(function () {
 //     console.log("I am doing my 1 minute check");
-//     postReq(db.getCarTrack())
 // }, the_interval);
