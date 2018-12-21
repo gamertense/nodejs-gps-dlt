@@ -7,8 +7,9 @@ const pool = new Pool(config)
 //Handle incorrect time
 pg.types.setTypeParser(1114, str => moment.utc(str).format());
 
-const vender_id = '1'
-const model_id = '0001'
+const vender_id = '155'
+const model_id = 'TLT1'
+const gps_model_id = (vender_id + model_id).padStart(7, '0')
 
 const extractJSON = (dataArray) => {
     let locationsArray = []
@@ -18,8 +19,6 @@ const extractJSON = (dataArray) => {
     for (let i = 0; i < dataArray.length; i++) {
         // console.log(data[i].deviceid)
         const data = dataArray[i]
-        const gps_model_id = (vender_id + model_id).padStart(7, '0')
-
         const dupDevices = devices.filter(x => x.deviceid === data.deviceid && x.acctime === data.acctime)
         if (dupDevices.length === 0) {
             devices.push({
@@ -27,6 +26,7 @@ const extractJSON = (dataArray) => {
                 acctime: data.acctime,
                 seq: 0
             })
+            sequence = 0
         } else {
             const findDevice = devices.find(x => x.deviceid === data.deviceid && x.acctime === data.acctime)
             if (findDevice.seq < 65535)
@@ -60,7 +60,7 @@ const extractJSON = (dataArray) => {
 }
 
 const getCarTrack = (request, response) => {
-    pool.query('SELECT * FROM cartrack ORDER BY deviceid asc LIMIT 100', (error, results) => {
+    pool.query('SELECT * FROM cartrack ORDER BY idcartrack desc LIMIT 100', (error, results) => {
         if (error) {
             throw error
         }
@@ -68,11 +68,11 @@ const getCarTrack = (request, response) => {
         const locationsArray = extractJSON(results.rows)
         // const unique = [...new Set(locationsArray.map(item => item.unit_id))];
         response.status(200).json(locationsArray)
-        // postReq(locationsArray)
+        writeDLT(locationsArray)
     })
 }
 
-const postReq = (locationArray) => {
+const writeDLT = (locationArray) => {
     var postData = {
         vender_id: 1,
         locations_count: locationArray.length,
