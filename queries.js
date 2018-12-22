@@ -47,7 +47,7 @@ const extractJSON = (dataArray) => {
             lat: data.lat,
             lon: data.lon,
             speed: data.speed,
-            engine_status: 1,
+            engine_status: data.car_status === 'online' ? 1 : 0,
             fix: 1,
             license: null,
             course: data.direction,
@@ -60,15 +60,16 @@ const extractJSON = (dataArray) => {
 }
 
 const getCarTrack = (request, response) => {
-    pool.query('SELECT * FROM cartrack ORDER BY idcartrack desc LIMIT 100', (error, results) => {
+    const q = 'SELECT * FROM cars INNER JOIN cartrack on cars.idobd = cartrack.deviceid ORDER BY idcartrack desc LIMIT 100';
+    pool.query(q, (error, results) => {
         if (error) {
             throw error
         }
         // response.status(200).json(results.rows)
         const locationsArray = extractJSON(results.rows)
-        // const unique = [...new Set(locationsArray.map(item => item.unit_id))];
         response.status(200).json(locationsArray)
-        writeDLT(locationsArray)
+        // writeDLT(locationsArray)
+        // const unique = [...new Set(locationsArray.map(item => item.unit_id))];
     })
 }
 
