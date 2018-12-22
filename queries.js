@@ -37,8 +37,6 @@ const extractJSON = (dataArray) => {
         }
 
         dltjson = {
-            vender_id: vender_id,
-            locations_count: data.length,
             unit_id: gps_model_id + data.deviceid.padStart(20, '0'),
             driver_id: null,
             seq: sequence,
@@ -46,13 +44,24 @@ const extractJSON = (dataArray) => {
             recv_utc_ts: data.tstamp,
             lat: data.lat,
             lon: data.lon,
+            alt: 0,
             speed: data.speed,
             engine_status: data.car_status === 'online' ? 1 : 0,
             fix: 1,
             license: null,
             course: data.direction,
+            hdrop: 0,
+            num_sats: data.satellite,
+            gsm_cell: 0,
+            gsm_loc: 0,
+            gsm_rssi: 0,
+            mileage: data.tripmileage,
             ext_power_status: 0,
-
+            ext_power: 0,
+            high_acc_count: null,
+            high_de_acc_count: null,
+            over_speed_count: null,
+            max_speed: null
         }
         locationsArray.push(dltjson)
     }
@@ -75,7 +84,7 @@ const getCarTrack = (request, response) => {
 
 const writeDLT = (locationArray) => {
     var postData = {
-        vender_id: 1,
+        vender_id: vender_id,
         locations_count: locationArray.length,
         locations: locationArray
     };
