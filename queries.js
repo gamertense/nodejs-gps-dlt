@@ -57,7 +57,7 @@ const extractJSON = (dataArray) => {
             gsm_rssi: 0,
             mileage: data.tripmileage,
             ext_power_status: 0,
-            ext_power: 0,
+            ext_power: 24,
             high_acc_count: null,
             high_de_acc_count: null,
             over_speed_count: null,
