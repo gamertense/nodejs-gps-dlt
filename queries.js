@@ -1,6 +1,7 @@
 let pg = require('pg')
 const moment = require('moment');
 const config = require('./config')
+const fs = require('fs');
 const Pool = pg.Pool
 const pool = new Pool(config)
 
@@ -13,7 +14,7 @@ const gps_model_id = (vender_id + model_id).padStart(7, '0')
 
 const extractJSON = (dataArray) => {
     let locationsArray = []
-    let devices = []
+    let devices = require('./temp_data/devices.json');
     let sequence = 0
 
     for (let i = 0; i < dataArray.length; i++) {
@@ -27,9 +28,9 @@ const extractJSON = (dataArray) => {
             })
             sequence = 0
         } else {
-            const findDevice = devices.find(x => x.deviceid === data.deviceid && x.acctime === data.acctime)
+            const findDevice = devices.find(x => x.deviceid === data.deviceid && x.acctime === data.acctime) //Check whether the device id has been seen and compare acc_time.
             if (findDevice.seq < 65535)
-                findDevice.seq += 1
+                findDevice.seq += 1 // Sequence + 1 when acc_time is still the same (the trip is not ended).
             else
                 findDevice.seq = 0
             sequence = findDevice.seq
@@ -87,11 +88,13 @@ const getCarTrack = (request, response) => {
             const locationsArray = extracted.locationsArray
             response.status(200).json(locationsArray)
             writeDLT(locationsArray)
+            writeDevices(devices)
         }, 1000);
         // const unique = [...new Set(locationsArray.map(item => item.unit_id))];
     })
 }
 
+//A demo for sending a POST request by writing to a JSON file.
 const writeDLT = (locationArray) => {
     var postData = {
         vender_id: vender_id,
@@ -99,9 +102,13 @@ const writeDLT = (locationArray) => {
         locations: locationArray
     };
 
-    const fs = require('fs');
     let data = JSON.stringify(postData);
-    fs.writeFileSync('dlt.json', data);
+    fs.writeFileSync('./temp_data/dlt.json', data);
+}
+
+const writeDevices = (devices) => {
+    let data = JSON.stringify(devices);
+    fs.writeFileSync('./temp_data/devices.json', data);
 }
 
 module.exports = {
