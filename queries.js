@@ -79,9 +79,6 @@ const getCarTrack = (request, response) => {
         if (error) {
             throw error
         }
-        // let extracted = extractJSON(results.rows)
-        // let devices = extracted.devices
-        // let locationsArray = extracted.locationsArray
         setInterval(function () {
             const extracted = extractJSON(results.rows)
             const devices = extracted.devices
