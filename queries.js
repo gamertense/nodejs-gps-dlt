@@ -17,7 +17,6 @@ const extractJSON = (dataArray) => {
     let sequence = 0
 
     for (let i = 0; i < dataArray.length; i++) {
-        // console.log(data[i].deviceid)
         const data = dataArray[i]
         const dupDevices = devices.filter(x => x.deviceid === data.deviceid && x.acctime === data.acctime)
         if (dupDevices.length === 0) {
