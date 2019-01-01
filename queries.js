@@ -65,19 +65,30 @@ const extractJSON = (dataArray) => {
         }
         locationsArray.push(dltjson)
     }
-    return locationsArray
+    return { devices, locationsArray }
 }
 
 const getCarTrack = (request, response) => {
-    const q = 'SELECT * FROM cars INNER JOIN cartrack on cars.idobd = cartrack.deviceid ORDER BY idcartrack desc LIMIT 100';
+    const q = `SELECT * FROM cars INNER JOIN cartrack on cars.idobd = cartrack.deviceid
+    where tstamp::date = (now() at time zone 'utc' at time zone 'ict')::date
+    and to_char(tstamp, 'HH') = to_char(now() at time zone 'utc' at time zone 'ict', 'HH')
+    and to_char(tstamp, 'MI') >= to_char(now() at time zone 'utc' at time zone 'ict' - INTERVAL '2 minutes', 'MI')
+    and to_char(tstamp, 'MI') < to_char(now() at time zone 'utc' at time zone 'ict', 'MI')
+    LIMIT 100;`
     pool.query(q, (error, results) => {
         if (error) {
             throw error
         }
-        // response.status(200).json(results.rows)
-        const locationsArray = extractJSON(results.rows)
-        response.status(200).json(locationsArray)
-        // writeDLT(locationsArray)
+        // let extracted = extractJSON(results.rows)
+        // let devices = extracted.devices
+        // let locationsArray = extracted.locationsArray
+        setInterval(function () {
+            const extracted = extractJSON(results.rows)
+            const devices = extracted.devices
+            const locationsArray = extracted.locationsArray
+            response.status(200).json(locationsArray)
+            writeDLT(locationsArray)
+        }, 1000);
         // const unique = [...new Set(locationsArray.map(item => item.unit_id))];
     })
 }
