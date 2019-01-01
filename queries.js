@@ -83,7 +83,7 @@ const getCarTrack = (request, response) => {
             const extracted = extractJSON(results.rows)
             const devices = extracted.devices
             const locationsArray = extracted.locationsArray
-            response.status(200).json(locationsArray)
+            
             writeDLT(locationsArray)
             writeDevices(devices)
         }, 1000);
