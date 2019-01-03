@@ -75,6 +75,12 @@ const getCarTrack = (request, response) => {
     and to_char(tstamp, 'MI') >= to_char(now() at time zone 'utc' at time zone 'ict' - INTERVAL '2 minutes', 'MI')
     and to_char(tstamp, 'MI') < to_char(now() at time zone 'utc' at time zone 'ict', 'MI')
     LIMIT 100;`
+    // const temp_q = `SELECT * FROM cars INNER JOIN cartrack on cars.idobd = cartrack.deviceid
+    // where tstamp::date = TO_TIMESTAMP('2019-01-03 7:39:00','YYYY-MM-DD HH:MI:SS')::date
+    // and to_char(tstamp, 'HH') = to_char(TO_TIMESTAMP('2019-01-03 7:39:00','YYYY-MM-DD HH:MI:SS'), 'HH')
+    // and to_char(tstamp, 'MI') >= to_char(TO_TIMESTAMP('2019-01-03 7:39:00','YYYY-MM-DD HH:MI:SS') - INTERVAL '2 minutes', 'MI')
+    // and to_char(tstamp, 'MI') < to_char(TO_TIMESTAMP('2019-01-03 7:39:00','YYYY-MM-DD HH:MI:SS'), 'MI')
+    // LIMIT 100;`
     pool.query(q, (error, results) => {
         if (error) {
             throw error
@@ -83,11 +89,11 @@ const getCarTrack = (request, response) => {
             const extracted = extractJSON(results.rows)
             const devices = extracted.devices
             const locationsArray = extracted.locationsArray
-            
+
             writeDLT(locationsArray)
             writeDevices(devices)
-        }, 1000);
-        // const unique = [...new Set(locationsArray.map(item => item.unit_id))];
+        }, 120000);
+        response.status(200).json('Done')
     })
 }
 
@@ -100,7 +106,7 @@ const writeDLT = (locationArray) => {
     };
 
     let data = JSON.stringify(postData);
-    fs.writeFileSync('./temp_data/dlt.json', data);
+    fs.writeFileSync('./temp_data/dlt-' + Math.random().toString(36).substr(2, 9) + '.json', data);
 }
 
 const writeDevices = (devices) => {
