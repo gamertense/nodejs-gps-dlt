@@ -69,30 +69,31 @@ const extractJSON = (dataArray) => {
 }
 
 const getCarTrack = (request, response) => {
-    const q = `SELECT * FROM cars INNER JOIN cartrack on cars.idobd = cartrack.deviceid
-    where tstamp::date = (now() at time zone 'utc' at time zone 'ict')::date
-    and to_char(tstamp, 'HH') = to_char(now() at time zone 'utc' at time zone 'ict', 'HH')
-    and to_char(tstamp, 'MI') >= to_char(now() at time zone 'utc' at time zone 'ict' - INTERVAL '2 minutes', 'MI')
-    and to_char(tstamp, 'MI') < to_char(now() at time zone 'utc' at time zone 'ict', 'MI')
-    LIMIT 100;`
-    // const temp_q = `SELECT * FROM cars INNER JOIN cartrack on cars.idobd = cartrack.deviceid
-    // where tstamp::date = TO_TIMESTAMP('2019-01-03 7:39:00','YYYY-MM-DD HH:MI:SS')::date
-    // and to_char(tstamp, 'HH') = to_char(TO_TIMESTAMP('2019-01-03 7:39:00','YYYY-MM-DD HH:MI:SS'), 'HH')
-    // and to_char(tstamp, 'MI') >= to_char(TO_TIMESTAMP('2019-01-03 7:39:00','YYYY-MM-DD HH:MI:SS') - INTERVAL '2 minutes', 'MI')
-    // and to_char(tstamp, 'MI') < to_char(TO_TIMESTAMP('2019-01-03 7:39:00','YYYY-MM-DD HH:MI:SS'), 'MI')
+    // const q = `SELECT * FROM cars INNER JOIN cartrack on cars.idobd = cartrack.deviceid
+    // where tstamp::date = (now() at time zone 'utc' at time zone 'ict')::date
+    // and to_char(tstamp, 'HH') = to_char(now() at time zone 'utc' at time zone 'ict', 'HH')
+    // and to_char(tstamp, 'MI') >= to_char(now() at time zone 'utc' at time zone 'ict' - INTERVAL '2 minutes', 'MI')
+    // and to_char(tstamp, 'MI') < to_char(now() at time zone 'utc' at time zone 'ict', 'MI')
     // LIMIT 100;`
-    pool.query(q, (error, results) => {
+    const temp_q = `SELECT * FROM cars INNER JOIN cartrack on cars.idobd = cartrack.deviceid
+    where tstamp::date = TO_TIMESTAMP('2018-11-05 13:34:00','YYYY-MM-DD HH24:MI:SS')::date
+    and to_char(tstamp, 'HH') = to_char(TO_TIMESTAMP('2018-11-05 13:34:00','YYYY-MM-DD HH24:MI:SS'), 'HH')
+    and to_char(tstamp, 'MI') >= to_char(TO_TIMESTAMP('2018-11-05 13:34:00','YYYY-MM-DD HH24:MI:SS') - INTERVAL '2 minutes', 'MI')
+    and to_char(tstamp, 'MI') < to_char(TO_TIMESTAMP('2018-11-05 13:34:00','YYYY-MM-DD HH24:MI:SS'), 'MI')
+    LIMIT 100
+	`
+    pool.query(temp_q, (error, results) => {
         if (error) {
             throw error
         }
-        setInterval(function () {
+        // setInterval(function () {
             const extracted = extractJSON(results.rows)
             const devices = extracted.devices
             const locationsArray = extracted.locationsArray
 
             writeDLT(locationsArray)
             writeDevices(devices)
-        }, 120000);
+        // }, 120000);
         response.status(200).json('Done')
     })
 }
