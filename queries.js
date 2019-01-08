@@ -88,14 +88,14 @@ const getCarTrack = (request, response) => {
         if (error) {
             throw error
         }
-        setInterval(function () {
-            const extracted = extractJSON(results.rows)
-            const devices = extracted.devices
-            const locationsArray = extracted.locationsArray
+        // setInterval(function () {
+        const extracted = extractJSON(results.rows)
+        const devices = extracted.devices
+        const locationsArray = extracted.locationsArray
 
-            writeDLT(locationsArray)
-            writeDevices(devices)
-        }, 60000);
+        writeDLT(locationsArray)
+        writeDevices(devices)
+        // }, 60000);
         response.status(200).json('Done')
     })
 }
@@ -108,8 +108,15 @@ const writeDLT = (locationArray) => {
         locations: locationArray
     };
 
-    let data = JSON.stringify(postData);
-    fs.writeFileSync('./temp_data/dlt-' + Math.random().toString(36).substr(2, 9) + '.json', data);
+    const data = JSON.stringify(postData);
+    let dt = new Date().toISOString()
+        .replace(/T/, ' ')
+        .replace(/\..+/, '')
+        .replace(':', '-')
+        .replace('2019-01-08', '')
+        .replace(' ', '')
+    dt = dt.slice(0, dt.length - 3);
+    fs.writeFileSync(`./temp_data/dlt${dt}.json`, data);
 }
 
 const writeDevices = (devices) => {
