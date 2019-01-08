@@ -19,7 +19,7 @@ const extractJSON = (dataArray) => {
 
     for (let i = 0; i < dataArray.length; i++) {
         const data = dataArray[i]
-        const dupDevices = devices.filter(x => x.deviceid === data.deviceid && x.acctime === data.acctime)
+        const dupDevices = devices.filter(x => x.deviceid === data.deviceid)
         if (dupDevices.length === 0) {
             devices.push({
                 deviceid: data.deviceid,
@@ -69,31 +69,33 @@ const extractJSON = (dataArray) => {
 }
 
 const getCarTrack = (request, response) => {
-    // const q = `SELECT * FROM cars INNER JOIN cartrack on cars.idobd = cartrack.deviceid
-    // where tstamp::date = (now() at time zone 'utc' at time zone 'ict')::date
-    // and to_char(tstamp, 'HH') = to_char(now() at time zone 'utc' at time zone 'ict', 'HH')
-    // and to_char(tstamp, 'MI') >= to_char(now() at time zone 'utc' at time zone 'ict' - INTERVAL '2 minutes', 'MI')
-    // and to_char(tstamp, 'MI') < to_char(now() at time zone 'utc' at time zone 'ict', 'MI')
-    // LIMIT 100;`
-    const temp_q = `SELECT * FROM cars INNER JOIN cartrack on cars.idobd = cartrack.deviceid
-    where tstamp::date = TO_TIMESTAMP('2018-11-05 13:34:00','YYYY-MM-DD HH24:MI:SS')::date
-    and to_char(tstamp, 'HH') = to_char(TO_TIMESTAMP('2018-11-05 13:34:00','YYYY-MM-DD HH24:MI:SS'), 'HH')
-    and to_char(tstamp, 'MI') >= to_char(TO_TIMESTAMP('2018-11-05 13:34:00','YYYY-MM-DD HH24:MI:SS') - INTERVAL '2 minutes', 'MI')
-    and to_char(tstamp, 'MI') < to_char(TO_TIMESTAMP('2018-11-05 13:34:00','YYYY-MM-DD HH24:MI:SS'), 'MI')
-    LIMIT 100
-	`
-    pool.query(temp_q, (error, results) => {
+    const q = `SELECT distinct on (deviceid) deviceid, *
+    FROM cars INNER JOIN cartrack on cars.idobd = cartrack.deviceid
+    where tstamp::date = (NOW() + interval '7 hour')::date
+    and to_char(tstamp, 'HH') = to_char(NOW() + interval '7 hour', 'HH')
+    and to_char(tstamp, 'MI') = to_char(NOW(), 'MI')
+	and gpstime::date = (NOW() + interval '7 hour')::date
+    order by deviceid, idcartrack desc
+    LIMIT 100`
+    // const temp_q = `SELECT distinct on (deviceid) deviceid, * FROM cars INNER JOIN cartrack on cars.idobd = cartrack.deviceid
+    // where tstamp::date = TO_TIMESTAMP('2018-11-05 13:34:00','YYYY-MM-DD HH24:MI:SS')::date
+    // and to_char(tstamp, 'HH') = to_char(TO_TIMESTAMP('2018-11-05 13:34:00','YYYY-MM-DD HH24:MI:SS'), 'HH')
+    // and to_char(tstamp, 'MI') = to_char(TO_TIMESTAMP('2018-11-05 13:34:00','YYYY-MM-DD HH24:MI:SS'), 'MI')
+    // order by deviceid, idcartrack desc
+    // LIMIT 100
+    // `
+    pool.query(q, (error, results) => {
         if (error) {
             throw error
         }
-        // setInterval(function () {
+        setInterval(function () {
             const extracted = extractJSON(results.rows)
             const devices = extracted.devices
             const locationsArray = extracted.locationsArray
 
             writeDLT(locationsArray)
             writeDevices(devices)
-        // }, 120000);
+        }, 60000);
         response.status(200).json('Done')
     })
 }
