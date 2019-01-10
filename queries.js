@@ -35,8 +35,6 @@ const extractJSON = (dataArray) => {
                 findDevice.seq = 0
             sequence = findDevice.seq
         }
-        console.log(data.deviceid + ' ' + data.acctime)
-        console.log(data.deviceid + ' ' + data.gpstime)
 
         dltjson = {
             unit_id: gps_model_id + data.deviceid.padStart(20, '0'),
@@ -71,23 +69,23 @@ const extractJSON = (dataArray) => {
 }
 
 const getCarTrack = (request, response) => {
-    const q = `SELECT distinct on (deviceid) deviceid, *
-    FROM cars INNER JOIN cartrack on cars.idobd = cartrack.deviceid
-    where tstamp::date = (NOW() + interval '7 hour')::date
-    and to_char(tstamp, 'HH') = to_char(NOW() + interval '7 hour', 'HH')
-    and to_char(tstamp, 'MI') = to_char(NOW(), 'MI')
-    and gpstime::date = (NOW() + interval '7 hour')::date
-    and to_char(gpstime, 'HH') = to_char(now() + interval '7 hour', 'HH')
-    and to_char(gpstime, 'MI') = to_char(NOW(), 'MI')
-    order by deviceid, idcartrack desc
-    LIMIT 100`
-    // const temp_q = `SELECT distinct on (deviceid) deviceid, * FROM cars INNER JOIN cartrack on cars.idobd = cartrack.deviceid
-    // where tstamp::date = TO_TIMESTAMP('2018-11-05 13:34:00','YYYY-MM-DD HH24:MI:SS')::date
-    // and to_char(tstamp, 'HH') = to_char(TO_TIMESTAMP('2018-11-05 13:34:00','YYYY-MM-DD HH24:MI:SS'), 'HH')
-    // and to_char(tstamp, 'MI') = to_char(TO_TIMESTAMP('2018-11-05 13:34:00','YYYY-MM-DD HH24:MI:SS'), 'MI')
+    // const q = `SELECT distinct on (deviceid) deviceid, *
+    // FROM cars INNER JOIN cartrack on cars.idobd = cartrack.deviceid
+    // where tstamp::date = (NOW() + interval '7 hour')::date
+    // and to_char(tstamp, 'HH') = to_char(NOW() + interval '7 hour', 'HH')
+    // and to_char(tstamp, 'MI') = to_char(NOW(), 'MI')
+    // and gpstime::date = (NOW() + interval '7 hour')::date
+    // and to_char(gpstime, 'HH') = to_char(now() + interval '7 hour', 'HH')
+    // and to_char(gpstime, 'MI') = to_char(NOW(), 'MI')
     // order by deviceid, idcartrack desc
-    // LIMIT 100
-    // `
+    // LIMIT 100`
+    const q = `SELECT distinct on (deviceid) deviceid, * FROM cars INNER JOIN cartrack on cars.idobd = cartrack.deviceid
+    where tstamp::date = TO_TIMESTAMP('2018-11-05 13:34:00','YYYY-MM-DD HH24:MI:SS')::date
+    and to_char(tstamp, 'HH') = to_char(TO_TIMESTAMP('2018-11-05 13:34:00','YYYY-MM-DD HH24:MI:SS'), 'HH')
+    and to_char(tstamp, 'MI') = to_char(TO_TIMESTAMP('2018-11-05 13:34:00','YYYY-MM-DD HH24:MI:SS'), 'MI')
+    order by deviceid, idcartrack desc
+    LIMIT 100
+    `
     pool.query(q, (error, results) => {
         if (error) {
             throw error
@@ -97,30 +95,29 @@ const getCarTrack = (request, response) => {
         const devices = extracted.devices
         const locationsArray = extracted.locationsArray
 
-        writeDLT(locationsArray)
+        post(locationsArray)
         writeDevices(devices)
+
         // }, 60000);
         response.status(200).json(results.rows)
     })
 }
 
-//A demo for sending a POST request by writing to a JSON file.
-const writeDLT = (locationArray) => {
-    var postData = {
+const post = (locationArray) => {
+    let postData = {
         vender_id: vender_id,
         locations_count: locationArray.length,
         locations: locationArray
     };
+    const axios = require('axios')
 
-    const data = JSON.stringify(postData);
-    let dt = new Date().toISOString()
-        .replace(/T/, ' ')
-        .replace(/\..+/, '')
-        .replace(':', '-')
-        .replace('2019-01-10', '')
-        .replace(' ', '')
-    dt = dt.slice(0, dt.length - 3);
-    fs.writeFileSync(`./temp_data/dlt${dt}.json`, data);
+    axios.post('http://localhost:8080/dlt', postData)
+        .then((res) => {
+            console.log(`statusCode: ${res.code}`)
+        })
+        .catch((error) => {
+            console.error(error)
+        })
 }
 
 const writeDevices = (devices) => {
