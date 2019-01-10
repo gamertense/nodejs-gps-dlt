@@ -20,8 +20,3 @@ app.get('/', db.getCarTrack)
 app.listen(port, () => {
     console.log(`App running on port ${port}.`)
 })
-
-// var minutes = 2, the_interval = minutes * 60 * 1000;
-// setInterval(function () {
-//     console.log("I am doing my 1 minute check");
-// }, the_interval);
