@@ -19,7 +19,7 @@ const extractJSON = (dataArray) => {
 
     for (let i = 0; i < dataArray.length; i++) {
         const data = dataArray[i]
-        const dupDevices = devices.filter(x => x.deviceid === data.deviceid)
+        const dupDevices = devices.filter(x => x.deviceid === data.deviceid && x.acctime === data.acctime)
         if (dupDevices.length === 0) {
             devices.push({
                 deviceid: data.deviceid,
@@ -35,6 +35,8 @@ const extractJSON = (dataArray) => {
                 findDevice.seq = 0
             sequence = findDevice.seq
         }
+        console.log(data.deviceid + ' ' + data.acctime)
+        console.log(data.deviceid + ' ' + data.gpstime)
 
         dltjson = {
             unit_id: gps_model_id + data.deviceid.padStart(20, '0'),
@@ -74,7 +76,9 @@ const getCarTrack = (request, response) => {
     where tstamp::date = (NOW() + interval '7 hour')::date
     and to_char(tstamp, 'HH') = to_char(NOW() + interval '7 hour', 'HH')
     and to_char(tstamp, 'MI') = to_char(NOW(), 'MI')
-	and gpstime::date = (NOW() + interval '7 hour')::date
+    and gpstime::date = (NOW() + interval '7 hour')::date
+    and to_char(gpstime, 'HH') = to_char(now() + interval '7 hour', 'HH')
+    and to_char(gpstime, 'MI') = to_char(NOW(), 'MI')
     order by deviceid, idcartrack desc
     LIMIT 100`
     // const temp_q = `SELECT distinct on (deviceid) deviceid, * FROM cars INNER JOIN cartrack on cars.idobd = cartrack.deviceid
@@ -96,7 +100,7 @@ const getCarTrack = (request, response) => {
         writeDLT(locationsArray)
         writeDevices(devices)
         // }, 60000);
-        response.status(200).json('Done')
+        response.status(200).json(results.rows)
     })
 }
 
@@ -113,7 +117,7 @@ const writeDLT = (locationArray) => {
         .replace(/T/, ' ')
         .replace(/\..+/, '')
         .replace(':', '-')
-        .replace('2019-01-08', '')
+        .replace('2019-01-10', '')
         .replace(' ', '')
     dt = dt.slice(0, dt.length - 3);
     fs.writeFileSync(`./temp_data/dlt${dt}.json`, data);
