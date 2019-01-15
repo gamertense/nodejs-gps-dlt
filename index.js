@@ -16,6 +16,7 @@ app.use(
 // })
 
 app.get('/', db.getCarTrack)
+app.get('/master', db.postMaster)
 
 app.listen(port, () => {
     console.log(`App running on port ${port}.`)

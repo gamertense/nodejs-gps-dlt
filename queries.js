@@ -4,6 +4,7 @@ const config = require('./config')
 const fs = require('fs');
 const Pool = pg.Pool
 const pool = new Pool(config)
+const axios = require('axios')
 
 //Handle incorrect time
 pg.types.setTypeParser(1114, str => moment.utc(str).format());
@@ -103,17 +104,48 @@ const getCarTrack = (request, response) => {
     })
 }
 
+const postMaster = (request, response) => {
+    const q = `SELECT * FROM vehicle INNER JOIN vehicletype on vehicle.vehicle_register_type = vehicletype.vtypeid
+    where vehicle.vehicle_id = '0กย6980'`
+    pool.query(q, (error, results) => {
+        if (error) {
+            throw error
+        }
+        
+        const data = results.rows[0]
+        const postData = {
+            vender_id: vender_id,
+            unit_id: data.unit_id,
+            vehicle_id: data.vehicle_id,
+            vehicle_type: "TOYOTA TEST",
+            vehicle_chassis_no: data.vehicle_chassis_no,
+            vehicle_register_type: data.vehicle_register_type,
+            card_reader: 1, //not updated
+            province_code: data.province_code
+        }
+
+        axios.post('http://localhost:8080/masterfile/add', postData)
+            .then((res) => {
+                console.log(res.data)
+            })
+            .catch((error) => {
+                console.error(error)
+            })
+
+        response.status(200).json(results.rows)
+    })
+}
+
 const post = (locationArray) => {
     let postData = {
         vender_id: vender_id,
         locations_count: locationArray.length,
         locations: locationArray
     };
-    const axios = require('axios')
 
-    axios.post('http://localhost:8080/dlt', postData)
+    axios.post('http://localhost:8080/gps/backup/add/locations', postData)
         .then((res) => {
-            console.log(`statusCode: ${res.code}`)
+            console.log(res.data)
         })
         .catch((error) => {
             console.error(error)
@@ -127,4 +159,5 @@ const writeDevices = (devices) => {
 
 module.exports = {
     getCarTrack,
+    postMaster
 }

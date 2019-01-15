@@ -4,6 +4,8 @@ const app = express()
 const fs = require('fs');
 const moment = require('moment');
 
+const port = 8080
+
 const writeDLT = (postdata) => {
     const data = JSON.stringify(postdata);
     const time = moment().format('hh-mm');
@@ -41,4 +43,6 @@ app.post("/masterfile/add", function (request, response) {
     });
 });
 
-app.listen(8080);
+app.listen(port, () => {
+    console.log(`App running on port ${port}.`)
+})
