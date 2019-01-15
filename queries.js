@@ -96,7 +96,7 @@ const getCarTrack = (request, response) => {
         const devices = extracted.devices
         const locationsArray = extracted.locationsArray
 
-        post(locationsArray)
+        postRealtime(locationsArray)
         writeDevices(devices)
 
         // }, 60000);
@@ -136,7 +136,7 @@ const postMaster = (request, response) => {
     })
 }
 
-const post = (locationArray) => {
+const postRealtime = (locationArray) => {
     let postData = {
         vender_id: vender_id,
         locations_count: locationArray.length,
