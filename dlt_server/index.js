@@ -2,17 +2,13 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const app = express()
 const fs = require('fs');
+const moment = require('moment');
 
 const writeDLT = (postdata) => {
     const data = JSON.stringify(postdata);
-    let dt = new Date().toISOString()
-        .replace(/T/, ' ')
-        .replace(/\..+/, '')
-        .replace(':', '-')
-        .replace('2019-01-10', '')
-        .replace(' ', '')
-    dt = dt.slice(0, dt.length - 3);
-    fs.writeFileSync(`./temp_data/dlt${dt}.json`, data);
+    const time = moment().format('hh-mm');
+    console.log(time)
+    fs.writeFileSync(`./temp_data/dlt${time}.json`, data);
 }
 
 app.use(bodyParser.json())
