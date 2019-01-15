@@ -18,12 +18,12 @@ app.use(
     })
 )
 
-app.post("/dlt", function (request, response) {
+app.post("/gps/add/locations", function (request, response) {
     writeDLT(request.body)
     response.status(200).send({
         code: 1,
         message: "ok",
-        received_records: 2
+        received_records: request.body.locations.length
     });
 });
 
