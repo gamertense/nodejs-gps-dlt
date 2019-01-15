@@ -7,7 +7,7 @@ const moment = require('moment');
 const writeDLT = (postdata) => {
     const data = JSON.stringify(postdata);
     const time = moment().format('hh-mm');
-    fs.writeFileSync(`./temp_data/dlt${time}.json`, data);
+    fs.writeFileSync(`./temp_data/real-time${time}.json`, data);
 }
 
 const writeMaster = (postdata) => {
