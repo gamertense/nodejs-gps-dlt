@@ -119,8 +119,8 @@ const postMaster = (request, response) => {
             vehicle_id: data.vehicle_id,
             vehicle_type: "TOYOTA TEST",
             vehicle_chassis_no: data.vehicle_chassis_no,
-            vehicle_register_type: data.vehicle_register_type,
-            card_reader: 1, //not updated
+            vehicle_register_type: data.code,
+            card_reader: data.card_reader,
             province_code: data.province_code
         }
 

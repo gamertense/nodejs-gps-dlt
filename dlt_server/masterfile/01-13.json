@@ -4,7 +4,7 @@
     "vehicle_id": "0กย6980",
     "vehicle_type": "TOYOTA TEST",
     "vehicle_chassis_no": "A1",
-    "vehicle_register_type": 131,
-    "card_reader": 1,
+    "vehicle_register_type": 3012,
+    "card_reader": 0,
     "province_code": 1
 }
