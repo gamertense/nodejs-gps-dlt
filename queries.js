@@ -105,19 +105,22 @@ const getCarTrack = (request, response) => {
 }
 
 const postMaster = (request, response) => {
-    const q = `SELECT * FROM vehicle INNER JOIN vehicletype on vehicle.vehicle_register_type = vehicletype.vtypeid
-    where vehicle.vehicle_id = '0กย6980'`
+    const q = `SELECT unit_id, vehicle_id, brand_name, vehicle_chassis_no, code, card_reader, province_code
+    FROM vehicle INNER JOIN vehicletype on vehicle.vehicle_register_type = vehicletype.vtypeid
+    join vehicle_brand on vehicle.vehicle_type = vehicle_brand.brandid
+    where vehicle.vehicle_id = '0กย6980'
+    `
     pool.query(q, (error, results) => {
         if (error) {
             throw error
         }
-        
+
         const data = results.rows[0]
         const postData = {
             vender_id: vender_id,
             unit_id: data.unit_id,
             vehicle_id: data.vehicle_id,
-            vehicle_type: "TOYOTA TEST",
+            vehicle_type: data.brand_name,
             vehicle_chassis_no: data.vehicle_chassis_no,
             vehicle_register_type: data.code,
             card_reader: data.card_reader,
