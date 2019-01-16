@@ -70,21 +70,28 @@ const extractJSON = (dataArray) => {
 }
 
 const getDriverID = () => {
-    const dl3 = "+             4100            10            9999958  00100                     ?"
+    // const dl3 = "+             4100            10            9999958  00100                     ?"
+    const dl3 = "+             24            1            9999958  00100                     ?"
+    let filtered = dl3.split(" ").filter(v => v != "")
+    filtered.splice(0, 1)  // Remove first element (+)
+    filtered.splice(-1, 1) // and last element (?) from array.
+
     switch (dl3.length) {
         case 77: // public transport
             break;
         case 80: //private car
-            let filtered = dl3.split(" ").filter(v => v != "")
-            filtered.splice(0, 1)  // Remove first element (+)
-            filtered.splice(-1, 1) // and last element (?) from array.
             filtered[1] = filtered[1].slice(0, -1); // Remove 0 from 10
-            filtered[3] = filtered[3].slice(0, 3); // Remvoe last two 0's from 00100
-
-            return filtered.join('')
+            break;
         default:
             console.log("Incorrect format!")
     }
+
+    const branch = filtered[3].slice(3, 5);
+
+    filtered[3] = filtered[3].slice(0, 3); // Remvoe last two 0's from 00100
+    filtered.push(branch)
+    console.log(filtered)
+    return filtered.join('')
 }
 
 const getCarTrack = (request, response) => {
