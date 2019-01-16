@@ -70,20 +70,20 @@ const extractJSON = (dataArray) => {
 }
 
 const getCarTrack = (request, response) => {
-    // const q = `SELECT distinct on (deviceid) deviceid, *
+    // const q = `SELECT distinct on (cartrack.deviceid) cartrack.deviceid, *
     // FROM cars INNER JOIN cartrack on cars.idobd = cartrack.deviceid
-    // where tstamp::date = (NOW() + interval '7 hour')::date
-    // and to_char(tstamp, 'HH') = to_char(NOW() + interval '7 hour', 'HH')
-    // and to_char(tstamp, 'MI') = to_char(NOW(), 'MI')
-    // and gpstime::date = (NOW() + interval '7 hour')::date
-    // and to_char(gpstime, 'HH') = to_char(now() + interval '7 hour', 'HH')
-    // and to_char(gpstime, 'MI') = to_char(NOW(), 'MI')
-    // order by deviceid, idcartrack desc
+    // where cartrack.tstamp::date = (NOW() + interval '7 hour')::date
+    // and to_char(cartrack.tstamp, 'HH') = to_char(NOW() + interval '7 hour', 'HH')
+    // and to_char(cartrack.tstamp, 'MI') = to_char(NOW(), 'MI')
+    // and cartrack.gpstime::date = (NOW() + interval '7 hour')::date
+    // and to_char(cartrack.gpstime, 'HH') = to_char(now() + interval '7 hour', 'HH')
+    // and to_char(cartrack.gpstime, 'MI') = to_char(NOW(), 'MI')
+    // order by cartrack.deviceid, idcartrack desc
     // LIMIT 100`
     const q = `SELECT distinct on (deviceid) deviceid, * FROM cars INNER JOIN cartrack on cars.idobd = cartrack.deviceid
-    where tstamp::date = TO_TIMESTAMP('2018-11-05 13:34:00','YYYY-MM-DD HH24:MI:SS')::date
-    and to_char(tstamp, 'HH') = to_char(TO_TIMESTAMP('2018-11-05 13:34:00','YYYY-MM-DD HH24:MI:SS'), 'HH')
-    and to_char(tstamp, 'MI') = to_char(TO_TIMESTAMP('2018-11-05 13:34:00','YYYY-MM-DD HH24:MI:SS'), 'MI')
+    where tstamp::date = TO_TIMESTAMP('2018-11-05','YYYY-MM-DD')::date
+    and to_char(tstamp, 'HH') = to_char(TO_TIMESTAMP('13:34:00','HH24:MI:SS'), 'HH')
+    and to_char(tstamp, 'MI') = to_char(TO_TIMESTAMP('13:34:00','HH24:MI:SS'), 'MI')
     order by deviceid, idcartrack desc
     LIMIT 100
     `
