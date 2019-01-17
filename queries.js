@@ -70,28 +70,47 @@ const extractJSON = (dataArray) => {
 }
 
 const getDriverID = () => {
-    // const dl3 = "+             4100            10            9999958  00100                     ?"
-    const dl3 = "+             24            1            9999958  00100                     ?"
-    let filtered = dl3.split(" ").filter(v => v != "")
-    filtered.splice(0, 1)  // Remove first element (+)
-    filtered.splice(-1, 1) // and last element (?) from array.
+    let track3
+    let driverID = []
+    track3 = "+0            41              10            9999958  00100                     ?"
+    // track3 = "+             24            1            9999958  00100                     ?"
+    if (track3[1] !== '0') { //Normal case - Handle unusual case +0..0 41 0..0 10
+        driverID = track3.split(" ").filter(v => v != "")
+        driverID.splice(0, 1)  // Remove first element (+)
+        driverID.splice(-1, 1) // and last element (?) from array.
 
-    switch (dl3.length) {
-        case 77: // public transport
-            break;
-        case 80: //private car
-            filtered[1] = filtered[1].slice(0, -1); // Remove 0 from 10
-            break;
-        default:
-            console.log("Incorrect format!")
+        switch (track3.length) {
+            case 77: // public transport
+                break;
+            case 80: //private car
+                driverID[1] = driverID[1].slice(0, -1); // Remove 0 from 10
+                break;
+            default:
+                console.log("Incorrect format!")
+        }
+        console.log(driverID)
+    }
+    else {
+        driverID.push(track3.slice(14, 16)) //type
+
+        switch (track3.length) {
+            case 77: // public transport
+                driverID.push(track3[28]) //sex
+                driverID.push(track3.slice(42, 48)) //license
+                driverID.push(track3.slice(50, 55)) //province & branch
+                break;
+            case 80: //private car
+                driverID.push(track3[30]) //sex
+                driverID.push(track3.slice(44, 51)) //license
+                driverID.push(track3.slice(53, 58)) //province & branch
+                break;
+            default:
+                console.log("Incorrect format!")
+        }
+        console.log(driverID)
     }
 
-    const branch = filtered[3].slice(3, 5);
-
-    filtered[3] = filtered[3].slice(0, 3); // Remvoe last two 0's from 00100
-    filtered.push(branch)
-    console.log(filtered)
-    return filtered.join('')
+    return driverID.join('')
 }
 
 const getCarTrack = (request, response) => {
